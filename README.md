@@ -14,7 +14,7 @@
  ### 🔹 6. Users can view other travelers feeds and the user's feed based on follows in reverse chronological order;
 
 ---
- ## 🚀 Non Functional Requirements
+ ## 📊 Non-Functional Requirements
   ### 🔹 1. 10 000 000 DAU
   ### 🔹 2. 99.95% uptime target.
   ### 🔹 3. Posts, photos and comments are always stored
@@ -25,6 +25,9 @@
   ### 🔹 5. Limits
    - User can publish max 10 photos per post
    - Max size of photo 500KB
- ### 🔹 5. Timings
+ ### 🔹 6. Timings
   - Create post, comment posts, like posts <= 1s
   - Upload photos, search posts, load feeds <= 3s
+
+## 📈 Estimated System Load Analysis
+ 
