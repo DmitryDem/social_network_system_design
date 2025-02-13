@@ -21,11 +21,19 @@
   ### 🔹 4. Users activity (average)
   - User publish 3 posts per week.
   - User view 20 posts per day
-  - User publish 15 comments per day
-  - User attach 10 photos to post
+  - User add 5 comments per day
+  - User view 20 comments per post
+  - User view 10 likes per post
+  - Post contains 150 comments per day
+  - Post contains 800 likes per day
+  - User publish 10 photos per post
   - User likes 10 posts per day
   ### 🔹 5. Limits
    - Max size of photo up to 800KB
+   - Using paging for
+     - posts  - 10 per page
+     - comments - 10 per page
+     - likes - 20  per page
  ### 🔹 6. Timings
   - Create post, comment posts, like posts <= 1s
   - Upload photos, search posts, load feeds <= 3s
@@ -66,4 +74,8 @@
 
      Row size = 9 bytes
 
-    ### 🔹 Calculation 
+    ### 🔹 Calculation
+    
+    RPS (Write) = (10 000 000 (DAU) * ((3/7)(posts per day) * 10 (photos per post)) + 10 comments + 10 likes)) / 86400 = 2810
+    
+    RPS (Read) = (10 000 000 (DAU) * (10 (posts) * 2 (pages) * 10 (photos) + 10 (comments) * 2 (pages) + 1 (likes)) / 86400) = 25578
