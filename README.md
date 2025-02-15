@@ -73,34 +73,51 @@
      Row size = 9 bytes = 0.009 KB
 
     ### 🔹 Calculation
+    
     - RPS Photo 
-       (Write) 10 000 000 (DAU) * (3/7)(posts per day) * 10 (photos per post) / 86400 = 296
-       (Read) 10 000 000 (DAU) * 20 (posts per day) * 10 (photos per post) / 86400 = 23 148
+
+          (Write) 10 000 000 (DAU) * (3/7)(posts per day) * 10 (photos per post) / 86400 = 296
+
+          (Read) 10 000 000 (DAU) * 20 (posts per day) * 10 (photos per post) / 86400 = 23 148
       
     - RPS Posts
-       (Write) 10 000 000 (DAU) * (3/7)(posts per day) / 86400 = 49
-       (Read) 10 000 000 (DAU) * 2 (20 posts per day / 10 per page) / 86400 = 231
+
+          (Write) 10 000 000 (DAU) * (3/7)(posts per day) / 86400 = 49
+      
+          (Read) 10 000 000 (DAU) * 2 (20 posts per day / 10 per page) / 86400 = 231
       
     - RPS Comments
-       (Write) 10 000 000 (DAU) * 5 (comments per day) / 86400 = 578
-       (Read) 10 000 000 (DAU) * 20 (posts per day) *  20 (comments per day) / 86400 = 46 296
+
+         (Write) 10 000 000 (DAU) * 5 (comments per day) / 86400 = 578
+      
+         (Read) 10 000 000 (DAU) * 20 (posts per day) *  20 (comments per day) / 86400 = 46 296
       
     - RPS Likes
-       (Write) 10 000 000 (DAU) * 10 (likes per day) / 86400 = 115
-       (Read) 10 000 000 (DAU) * 20 (posts per day) * 10 (likes per post) / 86400 = 23 148
+
+          (Write) 10 000 000 (DAU) * 10 (likes per day) / 86400 = 115
+
+          (Read) 10 000 000 (DAU) * 20 (posts per day) * 10 (likes per post) / 86400 = 23 148
       
     - Network Traffic Photo
-         (Write) 10 000 000 (DAU) * (3/7)(posts per day) * 10(photos per post) * 800KB(photo size) / 86400 = 396 MB/s
-         (Read) 10 000 000 (DAU) * 20(posts per day) * 10(photos per post) * 800KB(photo size) / 86400 = 18,5 GB/s
+
+          (Write) 10 000 000 (DAU) * (3/7)(posts per day) * 10(photos per post) * 800KB(photo size) / 86400 = 396 MB/s
+
+          (Read) 10 000 000 (DAU) * 20(posts per day) * 10(photos per post) * 800KB(photo size) / 86400 = 18,5 GB/s
 
     - Network Traffic Posts
+      
           (Write) 10 000 000 (DAU) * 3/7(posts per day) * 2.472(post size) / 86400 = 122,6 Kb/s
+      
           (Read) 10 000 000 (DAU) * 20 (posts per day) * 2.472(post size) / 86400 = 5,7 Mb/s
 
     - Network Traffic Comments
+      
           (Write) 10 000 000 (DAU) * 5(comments per day) * 1.040(comment size) / 86400 = 601 KB/s
+      
           (Read) 10 000 000 (DAU) * 20 (posts per day) * 20 (comments per post) * 1.040(comment size) / 86400 = 4,8 Mb/s
       
     - Network Traffic Likes
+      
           (Write) 10 000 000 (DAU) * 10(likes per day) * 0.009(like size) / 86400 = 10,4 KB/s
+      
           (Read) 10 000 000 (DAU) * 20(posts per day) * 10 (likes per post) * 0.009(like size) / 86400 = 208 Kb/s
