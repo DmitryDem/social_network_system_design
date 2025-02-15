@@ -88,9 +88,9 @@
       
     - RPS Comments
 
-         (Write) 10 000 000 (DAU) * 5 (comments per day) / 86400 = 578
-      
-         (Read) 10 000 000 (DAU) * 20 (posts per day) *  20 (comments per day) / 86400 = 46 296
+          (Write) 10 000 000 (DAU) * 5 (comments per day) / 86400 = 578
+    
+          (Read) 10 000 000 (DAU) * 20 (posts per day) *  20 (comments per day) / 86400 = 46 296
       
     - RPS Likes
 
