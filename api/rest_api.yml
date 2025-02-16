@@ -30,7 +30,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  Id:
+                  id:
                     type: string
                     description: Hash of file data
         "400":
@@ -38,25 +38,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: Error message
-              example:
-                error: "Invalid file format. Only JPEG and PNG are supported."
+                $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: Error message
-              example:
-                error: "Internal server error. Please try again later."
+                $ref: "#/components/schemas/ErrorResponse"
 
   /photos/{id}:
     get:
@@ -88,22 +76,188 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: Error message
-              example:
-                error: "Photo not found."
+                $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: Internal server error
           content:
             application/json:
               schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /posts:
+    post:
+      summary: Create a post
+      description: Method to create a post about travel
+      tags:
+        - Posts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Title of the post about travel
+                content: 
+                  type: string
+                  description: Content of the post about travel
+                country:
+                  type: string
+                  description: Country of travel
+                city:
+                  type: string
+                  description: City of travel
+                location:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of the place
+                    longitude: 
+                      type: number
+                      format: double
+                      description: Longitude of the place
+                  required:
+                    - latitude
+                    - longitude
+                photos:
+                  type: array
+                  description: List of uploaded photo IDs
+                  items:
+                    type: string
+              required:
+                - title
+                - content
+                - country
+                - location
+      responses:
+        "201":
+          description: Successful response with post ID
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
-                  error:
-                    type: string
-                    description: Error message
-              example:
-                error: "Internal server error. Please try again later."
+                  id:
+                    type: integer
+                    format: int64
+                    description: ID of the created post
+        "400":
+          description: Data validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /posts/{id}:
+    get:
+      summary: Get a post by ID
+      description: Retrieve a specific post by its ID
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to retrieve
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieved the post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+          description: Name of the field that failed validation
+        error:
+          type: string
+          description: Description of the validation error
+      example:
+        field: "title"
+        error: "Title is required."
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      example:
+        error: "Internal server error. Please try again later."
+
+    PostResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the post
+        title:
+          type: string
+          description: Title of the post
+        content:
+          type: string
+          description: Content of the post
+        country:
+          type: string
+          description: Country where the post is related to
+        city:
+          type: string
+          description: City where the post was made
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+              description: Latitude of the location
+            longitude:
+              type: number
+              format: double
+              description: Longitude of the location
+        photos:
+          type: array
+          description: List of associated photo IDs
+          items:
+            type: string
+      example:
+        id: "12345"
+        title: "My Travel to Paris"
+        content: "This was an amazing experience visiting the Eiffel Tower!"
+        country: "France"
+        city: "Paris"
+        location:
+          latitude: 48.8566
+          longitude: 2.3522
+        photos:
+          - "photo123"
+          - "photo456"
