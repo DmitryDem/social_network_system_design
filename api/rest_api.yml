@@ -157,6 +157,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+                
 
   /posts/{id}:
     get:
@@ -178,6 +179,78 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PostResponse"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+                
+    put:
+      summary: Update a post
+      description: Update an existing post by ID
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostUpdateRequest"
+      responses:
+        "200":
+          description: Successfully updated the post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+        "400":
+          description: Data validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+                
+    delete:
+      summary: Delete a post
+      description: Delete an existing post by ID
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to delete
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Post successfully deleted
         "404":
           description: Post not found
           content:
@@ -214,7 +287,79 @@ components:
           description: Error message
       example:
         error: "Internal server error. Please try again later."
-
+        
+    PostCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Title of the post about travel
+        content: 
+          type: string
+          description: Content of the post about travel
+        country:
+          type: string
+          description: Country of travel
+        city:
+          type: string
+          description: City of travel
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+              description: Latitude of the place
+            longitude: 
+              type: number
+              format: double
+              description: Longitude of the place
+          required:
+            - latitude
+            - longitude
+        photos:
+          type: array
+          description: List of uploaded photo IDs
+          items:
+            type: string
+      required:
+        - title
+        - content
+        - country
+        - location
+    
+    PostUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Title of the post about travel
+        content: 
+          type: string
+          description: Content of the post about travel
+        country:
+          type: string
+          description: Country of travel
+        city:
+          type: string
+          description: City of travel
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+              description: Latitude of the place
+            longitude: 
+              type: number
+              format: double
+              description: Longitude of the place
+        photos:
+          type: array
+          description: List of uploaded photo IDs
+          items:
+            type: string
+    
     PostResponse:
       type: object
       properties:
