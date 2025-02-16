@@ -1,0 +1,109 @@
+openapi: 3.0.0
+info:
+  title: Social network for travelers
+  description: Current API describes interaction with the social network for travelers
+  version: 1.0.0
+
+paths:
+  /photos:
+    post:
+      summary: Upload photo
+      description: Method to upload a photo to the server
+      tags:
+        - Photos
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The image file to upload
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Id:
+                    type: string
+                    description: Hash of file data
+        "400":
+          description: Bad request (e.g., invalid file format)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+              example:
+                error: "Invalid file format. Only JPEG and PNG are supported."
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+              example:
+                error: "Internal server error. Please try again later."
+
+  /photos/{id}:
+    get:
+      summary: Get photo
+      description: Retrieve a photo from the server by file ID
+      tags:
+        - Photos
+      parameters:
+        - name: id
+          in: path
+          description: ID of the photo to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response with image data
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Photo not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+              example:
+                error: "Photo not found."
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+              example:
+                error: "Internal server error. Please try again later."
