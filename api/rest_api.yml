@@ -1,0 +1,1015 @@
+openapi: 3.0.0
+info:
+  title: Social network for travelers
+  description: Current API describes interaction with the social network for travelers
+  version: 1.0.0
+
+paths:
+  /photos:
+    post:
+      summary: Upload photo
+      description: Method to upload a photo to the server
+      tags:
+        - Photos
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The image file to upload
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Hash of file data
+        "400":
+          description: Bad request (e.g., invalid file format)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /photos/{id}:
+    get:
+      summary: Get photo
+      description: Retrieve a photo from the server by file ID
+      tags:
+        - Photos
+      parameters:
+        - name: id
+          in: path
+          description: ID of the photo to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response with image data
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Photo not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /posts:
+    post:
+      summary: Create a post
+      description: Method to create a post about travel
+      tags:
+        - Posts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Title of the post about travel
+                content: 
+                  type: string
+                  description: Content of the post about travel
+                country:
+                  type: string
+                  description: Country of travel
+                city:
+                  type: string
+                  description: City of travel
+                location:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: double
+                      description: Latitude of the place
+                    longitude: 
+                      type: number
+                      format: double
+                      description: Longitude of the place
+                  required:
+                    - latitude
+                    - longitude
+                photos:
+                  type: array
+                  description: List of uploaded photo IDs
+                  items:
+                    type: string
+              required:
+                - title
+                - content
+                - country
+                - location
+      responses:
+        "201":
+          description: Successful response with post ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: ID of the created post
+        "400":
+          description: Data validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+                
+    get:
+      summary: Search posts
+      description: Search posts
+      tags:
+        - Posts
+      parameters:
+        - name: select
+          in: query
+          description: Number of rows for select (default is 10)
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+        - name: omit
+          in: query
+          description: Number of posts for skip (default is 0)
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 1
+        - name: sort
+          in: query
+          description: Sort order
+          required: false
+          schema:
+            type: string
+            enum: [oldest, latest, popular]
+            default: latest
+        - name: followingOnly
+          in: query
+          description: Return only posts from followed users
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Successfully retrieved the posts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total number of posts matching the search
+                  posts:
+                    type: array
+                    description: List of posts
+                    items:
+                      $ref: "#/components/schemas/PostResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse" 
+                
+  /posts/{id}:
+    get:
+      summary: Get a post by ID
+      description: Retrieve a specific post by its ID
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to retrieve
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieved the post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+                
+    put:
+      summary: Update a post
+      description: Update an existing post by ID
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostUpdateRequest"
+      responses:
+        "200":
+          description: Successfully updated the post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+        "400":
+          description: Data validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+                
+    delete:
+      summary: Delete a post
+      description: Delete a post by ID
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to delete
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Post successfully deleted
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+                
+                
+  /followers/{userId}:
+    post:
+      summary: Follow a user
+      description: Add an user to the following list
+      tags:
+        - Followers
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID of the user to follow
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Successfully followed the user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+              example:
+                message: "User followed successfully."
+        "400":
+          description: Invalid user ID or already following
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      summary: Unfollow a user
+      description: Remove an user from the following list
+      tags:
+        - Followers
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID of the user to unfollow
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully unfollowed the user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+              example:
+                message: "User unfollowed successfully."
+        "400":
+          description: Invalid user ID or not following
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+                
+                
+  /posts/{id}/reactions:
+    post:
+      summary: React to a post
+      description: Allows the authenticated user's to react to a post with either a positive (like) or negative (dislike) reaction
+      tags:
+        - Reactions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to react to
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                positive:
+                  type: boolean
+                  description: Type of reaction (like or dislike)
+              required:
+                - positive
+      responses:
+        "201":
+          description: Successfully added the reaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  reactionId:
+                    type: string
+                    description: ID of the reaction record
+              example:
+                message: "Reaction added successfully."
+                reactionId: "abc123"
+        "400":
+          description: Invalid request (e.g., already reacted)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      summary: Remove reaction from a post
+      description: Removes the authenticated user's reaction from a post
+      tags:
+        - Reactions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to remove reaction from
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully removed the reaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+              example:
+                message: "Reaction removed successfully."
+        "400":
+          description: Invalid request or no reaction found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      summary: Get reactions for a post
+      description: Retrieve a list of reactions for a specific post with pagination and filtering by type (positive or negative)
+      tags:
+        - Reactions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to retrieve reactions for
+          schema:
+            type: string
+        - name: positive
+          in: query
+          required: false
+          description: Type of reactions to retrieve (positive or negative)
+          schema:
+            type: boolean
+        - name: select
+          in: query
+          required: false
+          description: Select number of reactions (default is 10)
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+        - name: omit
+          in: query
+          required: false
+          description: Skip number of reactions (default is 0)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        "200":
+          description: Successfully retrieved reactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total number of reactions matching the filter
+                  reactions:
+                    type: array
+                    description: List of reactions
+                    items:
+                      $ref: "#/components/schemas/ReactionResponse"
+        "400":
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+                
+  paths:
+  /posts/{postId}/comments:
+    post:
+      summary: Add a comment to a post
+      description: Allows a user to add a comment to a specific post
+      tags:
+        - Comments
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID of the post to comment on
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  description: The comment text
+                parentId:
+                  type: string
+                  nullable: true
+                  description: ID of the parent comment if this is a reply (optional)
+              required:
+                - content
+      responses:
+        "201":
+          description: Successfully created the comment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commentId:
+                    type: string
+                    description: ID of the created comment
+              example:
+                commentId: "cmt123"
+        "400":
+          description: Invalid request (e.g., empty comment)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      summary: Get comments for a post
+      description: Retrieve a paginated list of comments for a specific post (20 comments per page)
+      tags:
+        - Comments
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID of the post to get comments for
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          description: Page number (default is 1)
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          required: false
+          description: Number of comments per page (default is 20)
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+      responses:
+        "200":
+          description: Successfully retrieved comments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total number of comments
+                  page:
+                    type: integer
+                    description: Current page number
+                  limit:
+                    type: integer
+                    description: Number of comments per page
+                  comments:
+                    type: array
+                    description: List of comments
+                    items:
+                      $ref: "#/components/schemas/CommentResponse"
+        "400":
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /posts/{postId}/comments/{commentId}:
+    put:
+      summary: Update a comment
+      description: Allows a user to update their own comment
+      tags:
+        - Comments
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID of the post the comment belongs to
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          required: true
+          description: ID of the comment to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  description: The updated comment text
+              required:
+                - content
+      responses:
+        "200":
+          description: Successfully updated the comment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentResponse"
+        "400":
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Comment or post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      summary: Delete a comment
+      description: Allows a user to delete their own comment
+      tags:
+        - Comments
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID of the post the comment belongs to
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          required: true
+          description: ID of the comment to delete
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Successfully deleted the comment
+        "404":
+          description: Comment or post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+          description: Name of the field that failed validation
+        error:
+          type: string
+          description: Description of the validation error
+      example:
+        field: "title"
+        error: "Title is required."
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      example:
+        error: "Internal server error. Please try again later."
+        
+    PostCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Title of the post about travel
+        content: 
+          type: string
+          description: Content of the post about travel
+        country:
+          type: string
+          description: Country of travel
+        city:
+          type: string
+          description: City of travel
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+              description: Latitude of the place
+            longitude: 
+              type: number
+              format: double
+              description: Longitude of the place
+          required:
+            - latitude
+            - longitude
+        photos:
+          type: array
+          description: List of uploaded photo IDs
+          items:
+            type: string
+      required:
+        - title
+        - content
+        - country
+        - location
+    
+    PostUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Title of the post about travel
+        content: 
+          type: string
+          description: Content of the post about travel
+        country:
+          type: string
+          description: Country of travel
+        city:
+          type: string
+          description: City of travel
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+              description: Latitude of the place
+            longitude: 
+              type: number
+              format: double
+              description: Longitude of the place
+        photos:
+          type: array
+          description: List of uploaded photo IDs
+          items:
+            type: string
+    
+    PostResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the post
+        title:
+          type: string
+          description: Title of the post
+        content:
+          type: string
+          description: Content of the post
+        country:
+          type: string
+          description: Country where the post is related to
+        city:
+          type: string
+          description: City where the post was made
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+              description: Latitude of the location
+            longitude:
+              type: number
+              format: double
+              description: Longitude of the location
+        photos:
+          type: array
+          description: List of associated photo IDs
+          items:
+            type: string
+      example:
+        id: "12345"
+        title: "My Travel to Paris"
+        content: "This was an amazing experience visiting the Eiffel Tower!"
+        country: "France"
+        city: "Paris"
+        location:
+          latitude: 48.8566
+          longitude: 2.3522
+        photos:
+          - "photo123"
+          - "photo456"
+          
+    ReactionResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: ID of the user who reacted
+        positive:
+          type: boolean
+          description: Type of reaction (like or dislike)
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the reaction was added
+      example:
+        userId: "user123"
+        reaction: "positive"
+        createdAt: "2024-02-17T14:30:00Z"
+        
+    CommentResponse:
+      type: object
+      properties:
+        commentId:
+          type: string
+          description: Unique identifier for the comment
+        postId:
+          type: string
+          description: ID of the post the comment belongs to
+        userId:
+          type: string
+          description: ID of the user who posted the comment
+        content:
+          type: string
+          description: The comment text
+        parentId:
+          type: string
+          nullable: true
+          description: Parent comment ID if it's a reply
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the comment was added
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the comment was last updated
+      example:
+        commentId: "cmt123"
+        postId: "post456"
+        userId: "user789"
+        content: "This is a great post!"
+        parentId: null
+        createdAt: "2024-02-17T14:30:00Z"
+        updatedAt: "2024-02-17T15:00:00Z"
